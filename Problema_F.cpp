@@ -2,52 +2,47 @@
 
 using namespace std;
 
-int freq[30][15];
+/*
+a ideia é dada uma palavra da entrada, ela vai possuir um *,
+nessa posição vamos colocar todas as letras possiveis [a, b]
+e adicionar no conjunto de todas as palavras.
+Após fazer isso para todas as palavras, vamos ordena-lás
+para computar a resposta dada uma palavra na posição i
+vamos buscar a primeira palavra na posição j tal que j > i,
+como o conjunto esta ordenado podemos fazer com busca binária.
+*/ 
 
 int main(){
-    ios_base::sync_with_stdio(0); cin.tie(nullptr); cout.tie(nullptr);
-    int n, c, ans_qtd=0;
-    cin >> n >> c;
-    string ans_palavra;
-    vector<string> palavras(n+5);
-    for(int i=1; i<=n; i++){
-        cin >> palavras[i];
-        for(int j=0; j<c; j++){
-            if(palavras[i][j] == '*') freq[0][j]++; // linha especial para asteriscos
-            else freq[ palavras[i][j]-'a'+1 ][j]++; // ocorrencia da letra i na posição j
-        }
-    }
-
-    // agora vamos computar nossa resposta
-    for(int i=1; i<=n; i++){
-        int p = 0;
-        while(palavras[i][p] != '*') p++; // pego qual a posição da palavra tem um * pq ele é especial pois pode ser qualquer letra
-        // agora vamos ver a menor qtd de vezes que uma letra aparece na quela posição da palavra, não contamos * nessa contagem
-        int qtd = 1e9; // um número infinito para pegar o menor
-        for(int j=0; j<c; j++){
-            if(j == p) continue; // posição do * na palavra
-            qtd = min(qtd, freq[ palavras[i][j] - 'a'+1 ][j] + freq[0][j]);
-        }
-        // agora vamos tentar modicar os caracteres na posição *
-        // O * pode substituir qualquer caractere [a, b] e pegamos o que aparece mais
-        int aparece_mais = 0;
-        char c = 'a';
-        for(int k=1; k<=26; k++){
-            if(freq[k][p] + freq[0][p] > aparece_mais){ // isso faz com que pegamos a menor lexi.
-                aparece_mais = freq[k][p] + freq[0][p];
-                c = (char)(k-1+'a');
-            }
-        }
-        qtd = min(qtd, aparece_mais); // isso tem que provar
-        palavras[i][p] = c; // substituir pelo melhor caractere
-        if(ans_qtd == qtd){ // tenho a mesma qtd de vezes, mas pego a menor lexi.
-            ans_palavra = min(ans_palavra, palavras[i]);
-        }
-        else if(qtd > ans_qtd){
-            ans_qtd = qtd;
-            ans_palavra = palavras[i];
-        }
-    }
-    cout << ans_palavra << ' ' << ans_qtd << '\n';
-    return 0;
+	ios_base::sync_with_stdio(0); cin.tie(nullptr); cout.tie(nullptr);
+	int n, c, p;
+	vector<string> palavras; // conjunto de todas as palavras possiveis
+	string palavra, ans_palavra;
+	int ans_qtd = 0; // qtd que a resposta aparece
+	cin >> n >> c; // qtd palavras e tamanho de cada palavra
+	for(int i=0; i<n; i++){
+		cin >> palavra;
+		p = 0;
+		while(palavra[p] != '*' && p<c) p++; // pego o indice que esta o  *
+		// agora vou substituir o * por todas as possibilidades de letras e adicionar no conjunto de palavras
+		palavra[p] ='a';
+		while(palavra[p] <= 'z'){
+			palavras.push_back(palavra); // adiciono no fim do vetor
+			palavra[p]++;
+		}
+	}
+	// agora ordenamos todas as palavras
+	sort(palavras.begin(), palavras.end());
+	// agora computamos nossa resposta
+	// vai ser algo no mesmo raciocinio do problema A
+	for(int i=0; i<(int)palavras.size(); i++){
+		int qtd = (int)(upper_bound(palavras.begin()+i, palavras.end(), palavras[i]) - (palavras.begin()+i)); // upper_bund retorna um 
+                                                                                                               // ponteiro para a 1ª palavra diferente
+		if(qtd > ans_qtd){ // vejo se a qtd que aparece é maior, se for igual eu não pego pq tem que ser a menor lexico.
+			ans_palavra = palavras[i];
+			ans_qtd = qtd;
+		}
+		i += qtd-1; // dou um salto na qtd de palavras repetidas
+	}
+	cout << ans_palavra << ' ' << ans_qtd << '\n'; // mostro a resposta
+	return 0;
 }
