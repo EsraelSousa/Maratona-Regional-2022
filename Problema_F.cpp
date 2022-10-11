@@ -26,19 +26,19 @@ int main(){
         int qtd = 1e9; // um número infinito para pegar o menor
         for(int j=0; j<c; j++){
             if(j == p) continue; // posição do * na palavra
-            qtd = min(qtd, freq[ palavras[i][j] - 'a'+1 ][j]);
+            qtd = min(qtd, freq[ palavras[i][j] - 'a'+1 ][j] + freq[0][j]);
         }
         // agora vamos tentar modicar os caracteres na posição *
         // O * pode substituir qualquer caractere [a, b] e pegamos o que aparece mais
         int aparece_mais = 0;
         char c = 'a';
         for(int k=1; k<=26; k++){
-            if(freq[k][p]+1 > aparece_mais){ // isso faz com que pegamos a menor lexi.
-                aparece_mais = freq[k][p]+1;
+            if(freq[k][p] + freq[0][p] > aparece_mais){ // isso faz com que pegamos a menor lexi.
+                aparece_mais = freq[k][p] + freq[0][p];
                 c = (char)(k-1+'a');
             }
         }
-        qtd = max(qtd, aparece_mais); // isso tem que provar
+        qtd = min(qtd, aparece_mais); // isso tem que provar
         palavras[i][p] = c; // substituir pelo melhor caractere
         if(ans_qtd == qtd){ // tenho a mesma qtd de vezes, mas pego a menor lexi.
             ans_palavra = min(ans_palavra, palavras[i]);
